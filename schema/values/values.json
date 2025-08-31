@@ -1,0 +1,17 @@
+[
+    {"type": "bool", "parser": "strconv.ParseBool(s)", "plural": "Bools", "basic": true},
+    {"type": "string", "parser": "s, error(nil)", "format": "string(*d.v)", "plural": "Strings", "basic": true},
+    {"type": "uint", "parser": "strconv.ParseUint(s, 0, 64)", "plural": "Uints", "basic": true},
+    {"type": "uint8", "parser": "strconv.ParseUint(s, 0, 8)"},
+    {"type": "uint16", "parser": "strconv.ParseUint(s, 0, 16)"},
+    {"type": "uint32", "parser": "strconv.ParseUint(s, 0, 32)"},
+    {"type": "uint64", "parser": "strconv.ParseUint(s, 0, 64)"},
+    {"type": "int", "parser": "strconv.ParseFloat(s, 64)", "plural": "Ints", "basic": true},
+    {"type": "int8", "parser": "strconv.ParseInt(s, 0, 8)"},
+    {"type": "int16", "parser": "strconv.ParseInt(s, 0, 16)"},
+    {"type": "int32", "parser": "strconv.ParseInt(s, 0, 32)"},
+    {"type": "int64", "parser": "strconv.ParseInt(s, 0, 64)"},
+    {"type": "float32", "parser": "strconv.ParseFloat(s, 32)", "basic": true},
+    {"type": "float64", "parser": "strconv.ParseFloat(s, 64)", "basic": true}
+]
+  
