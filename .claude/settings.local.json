@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "WebSearch",
-      "WebFetch(domain:maddy.email)"
+      "WebFetch(domain:maddy.email)",
+      "WebFetch(domain:caddyserver.com)"
     ],
     "deny": [],
     "ask": []
