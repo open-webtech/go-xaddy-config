@@ -98,3 +98,4 @@ func (nc *NodesContainer) EvaluateTree(nodes []parser.Node, cfg any) error {
 
 	return nil
 }
+
