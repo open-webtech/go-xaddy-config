@@ -11,6 +11,9 @@ import (
 // AST represents the Abstract Syntax Tree of a configuration file
 type AST []parser.Node
 
+// Node wraps the cfgparser.Node type for convenience
+type Node parser.Node
+
 // Read parses configuration from an io.Reader and returns the AST
 func Read(r io.Reader, location string) (AST, error) {
 	return parser.Read(r, location)
