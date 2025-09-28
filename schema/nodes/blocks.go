@@ -2,6 +2,7 @@ package nodes
 
 import (
 	parser "github.com/foxcpp/maddy/framework/cfgparser"
+	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/args"
 )
 
@@ -80,7 +81,7 @@ func (d *ModuleBlockDef) Evaluate(node parser.Node, cfg any) error {
 
 	m, ok := d.modules[*d.moduleName]
 	if !ok {
-		return NodeErr(node, "unknown module '%s'", *d.moduleName)
+		return NodeErr(ast.Node(node), "unknown module '%s'", *d.moduleName)
 	}
 
 	return m.EvaluateTree(node.Children, cfg)

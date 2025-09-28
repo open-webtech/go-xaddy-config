@@ -6,6 +6,7 @@ import (
 	"testing"
 
 	parser "github.com/foxcpp/maddy/framework/cfgparser"
+	"github.com/open-webtech/go-xaddy-config/ast"
 )
 
 func TestRead(t *testing.T) {
@@ -115,52 +116,52 @@ func TestReadFile(t *testing.T) {
 func TestExpectMaxArgN(t *testing.T) {
 	tests := []struct {
 		name    string
-		node    parser.Node
+		node    ast.Node
 		maxArgs int
 		wantErr bool
 	}{
 		{
 			name: "within limit",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "directive",
 				Args: []string{"arg1", "arg2"},
-			},
+			}),
 			maxArgs: 3,
 			wantErr: false,
 		},
 		{
 			name: "at limit",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "directive",
 				Args: []string{"arg1", "arg2", "arg3"},
-			},
+			}),
 			maxArgs: 3,
 			wantErr: false,
 		},
 		{
 			name: "exceeds limit",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "directive",
 				Args: []string{"arg1", "arg2", "arg3", "arg4"},
-			},
+			}),
 			maxArgs: 3,
 			wantErr: true,
 		},
 		{
 			name: "no args allowed",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "directive",
 				Args: []string{"arg1"},
-			},
+			}),
 			maxArgs: 0,
 			wantErr: true,
 		},
 		{
 			name: "no args provided",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "directive",
 				Args: []string{},
-			},
+			}),
 			maxArgs: 0,
 			wantErr: false,
 		},
@@ -190,52 +191,52 @@ func TestExpectMaxArgN(t *testing.T) {
 func TestExpectMinArgN(t *testing.T) {
 	tests := []struct {
 		name    string
-		node    parser.Node
+		node    ast.Node
 		minArgs int
 		wantErr bool
 	}{
 		{
 			name: "above minimum",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "directive",
 				Args: []string{"arg1", "arg2", "arg3"},
-			},
+			}),
 			minArgs: 2,
 			wantErr: false,
 		},
 		{
 			name: "at minimum",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "directive",
 				Args: []string{"arg1", "arg2"},
-			},
+			}),
 			minArgs: 2,
 			wantErr: false,
 		},
 		{
 			name: "below minimum",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "directive",
 				Args: []string{"arg1"},
-			},
+			}),
 			minArgs: 2,
 			wantErr: true,
 		},
 		{
 			name: "no args when required",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "directive",
 				Args: []string{},
-			},
+			}),
 			minArgs: 1,
 			wantErr: true,
 		},
 		{
 			name: "no args when none required",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "directive",
 				Args: []string{},
-			},
+			}),
 			minArgs: 0,
 			wantErr: false,
 		},

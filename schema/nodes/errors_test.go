@@ -5,15 +5,16 @@ import (
 	"testing"
 
 	parser "github.com/foxcpp/maddy/framework/cfgparser"
+	"github.com/open-webtech/go-xaddy-config/ast"
 )
 
 func TestNodeErr(t *testing.T) {
-	node := parser.Node{
+	node := ast.Node(parser.Node{
 		Name: "test_directive",
 		Args: []string{"arg1", "arg2"},
 		File: "test.conf",
 		Line: 42,
-	}
+	})
 
 	tests := []struct {
 		name        string
@@ -91,9 +92,9 @@ func TestNodeErr(t *testing.T) {
 
 func TestNodeErrWithEmptyNode(t *testing.T) {
 	// Test with node that has minimal information
-	node := parser.Node{
+	node := ast.Node(parser.Node{
 		Name: "minimal_node",
-	}
+	})
 
 	err := NodeErr(node, "test error message")
 	if err == nil {
@@ -112,11 +113,11 @@ func TestNodeErrWithEmptyNode(t *testing.T) {
 }
 
 func TestNodeErrWithVariousArguments(t *testing.T) {
-	node := parser.Node{
+	node := ast.Node(parser.Node{
 		Name: "test_node",
 		File: "config.conf",
 		Line: 10,
-	}
+	})
 
 	// Test with string argument
 	err1 := NodeErr(node, "invalid value '%s'", "bad_value")
@@ -139,11 +140,11 @@ func TestNodeErrWithVariousArguments(t *testing.T) {
 }
 
 func TestNodeErrFormatting(t *testing.T) {
-	node := parser.Node{
+	node := ast.Node(parser.Node{
 		Name: "format_test",
-		File: "test.conf", 
+		File: "test.conf",
 		Line: 123,
-	}
+	})
 
 	err := NodeErr(node, "test %s with %d values", "formatting", 42)
 	errStr := err.Error()
@@ -167,11 +168,11 @@ func TestNodeErrFormatting(t *testing.T) {
 func TestNodeErrWithDifferentNodeTypes(t *testing.T) {
 	tests := []struct {
 		name string
-		node parser.Node
+		node ast.Node
 	}{
 		{
 			name: "node with all fields",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "full_node",
 				Args: []string{"arg1", "arg2"},
 				File: "full.conf",
@@ -179,27 +180,27 @@ func TestNodeErrWithDifferentNodeTypes(t *testing.T) {
 				Children: []parser.Node{
 					{Name: "child", Args: []string{"child_arg"}},
 				},
-			},
+			}),
 		},
 		{
 			name: "node with just name",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "simple_node",
-			},
+			}),
 		},
 		{
 			name: "node with name and args",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "node_with_args",
 				Args: []string{"value1", "value2", "value3"},
-			},
+			}),
 		},
 		{
 			name: "node with file but no line",
-			node: parser.Node{
+			node: ast.Node(parser.Node{
 				Name: "file_only",
 				File: "file_only.conf",
-			},
+			}),
 		},
 	}
 

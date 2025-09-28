@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	parser "github.com/foxcpp/maddy/framework/cfgparser"
+	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/args"
 )
 
@@ -86,7 +87,7 @@ func TestDirectiveDefSetHandler(t *testing.T) {
 	}
 	
 	var handlerCalled bool
-	handler := func(node parser.Node) error {
+	handler := func(node ast.Node) error {
 		handlerCalled = true
 		return nil
 	}
@@ -98,7 +99,7 @@ func TestDirectiveDefSetHandler(t *testing.T) {
 	}
 	
 	// Test handler execution
-	testNode := parser.Node{Name: "test_directive"}
+	testNode := ast.Node(parser.Node{Name: "test_directive"})
 	err := directive.Handler()(testNode)
 	if err != nil {
 		t.Errorf("Handler returned error: %v", err)

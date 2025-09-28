@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	parser "github.com/foxcpp/maddy/framework/cfgparser"
+	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/args"
 )
 
@@ -33,9 +34,9 @@ func TestBuilderDefineDirectiveCallback(t *testing.T) {
 	builder := NewBuilder()
 	
 	var callbackCalled bool
-	var receivedNode parser.Node
-	
-	callback := func(node parser.Node) error {
+	var receivedNode ast.Node
+
+	callback := func(node ast.Node) error {
 		callbackCalled = true
 		receivedNode = node
 		return nil
@@ -57,7 +58,7 @@ func TestBuilderDefineDirectiveCallback(t *testing.T) {
 	}
 	
 	// Test callback execution
-	testNode := parser.Node{Name: "callback_directive", Args: []string{"test"}}
+	testNode := ast.Node(parser.Node{Name: "callback_directive", Args: []string{"test"}})
 	err := directive.Handler()(testNode)
 	if err != nil {
 		t.Errorf("Callback returned error: %v", err)
@@ -91,7 +92,7 @@ func TestBuilderDefineBlockCallback(t *testing.T) {
 	builder := NewBuilder()
 	
 	var callbackCalled bool
-	callback := func(node parser.Node) error {
+	callback := func(node ast.Node) error {
 		callbackCalled = true
 		return nil
 	}
@@ -112,7 +113,7 @@ func TestBuilderDefineBlockCallback(t *testing.T) {
 	}
 	
 	// Test callback execution
-	testNode := parser.Node{Name: "callback_block"}
+	testNode := ast.Node(parser.Node{Name: "callback_block"})
 	err := blockDef.Handler()(testNode)
 	if err != nil {
 		t.Errorf("Callback returned error: %v", err)

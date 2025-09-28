@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	parser "github.com/foxcpp/maddy/framework/cfgparser"
+	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/args"
 	"github.com/open-webtech/go-xaddy-config/schema/values"
 )
@@ -32,7 +33,7 @@ type NodeEvaluator interface {
 }
 
 // NodeHandler is a function type that processes a configuration node
-type NodeHandler func(node parser.Node) error
+type NodeHandler func(node ast.Node) error
 
 // NodeAttribute represents special attributes that can be applied to nodes
 type NodeAttribute int
@@ -109,10 +110,10 @@ func evaluate(d NodeDefinition, node parser.Node) error {
 	}
 
 	if len(node.Args) < d.MinArgs() {
-		return NodeErr(node, "directive '%s' expects at least %d arguments", d.Name(), d.MinArgs())
+		return NodeErr(ast.Node(node), "directive '%s' expects at least %d arguments", d.Name(), d.MinArgs())
 	}
 	if d.MaxArgs() != -1 && len(node.Args) > d.MaxArgs() {
-		return NodeErr(node, "directive '%s' expects a maximum of %d arguments", d.Name(), d.MaxArgs())
+		return NodeErr(ast.Node(node), "directive '%s' expects a maximum of %d arguments", d.Name(), d.MaxArgs())
 	}
 
 	for i, arg := range d.Args() {
@@ -126,7 +127,7 @@ func evaluate(d NodeDefinition, node parser.Node) error {
 	}
 
 	if d.Handler() != nil {
-		return d.Handler()(node)
+		return d.Handler()(ast.Node(node))
 	}
 
 	return nil

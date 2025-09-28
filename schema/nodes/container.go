@@ -2,6 +2,7 @@ package nodes
 
 import (
 	parser "github.com/foxcpp/maddy/framework/cfgparser"
+	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/args"
 )
 
@@ -73,7 +74,7 @@ func (nc *NodesContainer) EvaluateTree(nodes []parser.Node, cfg any) error {
 		for _, def := range nc.Directives {
 			if node.Name == def.Name() {
 				if !def.Repeatable() && usedDirectives[node.Name] {
-					return NodeErr(node, "directive '%s' may not be repeated", node.Name)
+					return NodeErr(ast.Node(node), "directive '%s' may not be repeated", node.Name)
 				}
 
 				usedDirectives[node.Name] = true
@@ -85,7 +86,7 @@ func (nc *NodesContainer) EvaluateTree(nodes []parser.Node, cfg any) error {
 		for _, def := range nc.Blocks {
 			if node.Name == def.Name() {
 				if !def.Repeatable() && usedBlocks[node.Name] {
-					return NodeErr(node, "block '%s' may not be repeated", node.Name)
+					return NodeErr(ast.Node(node), "block '%s' may not be repeated", node.Name)
 				}
 
 				usedBlocks[node.Name] = true
@@ -98,4 +99,3 @@ func (nc *NodesContainer) EvaluateTree(nodes []parser.Node, cfg any) error {
 
 	return nil
 }
-

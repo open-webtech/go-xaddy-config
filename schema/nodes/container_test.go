@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	parser "github.com/foxcpp/maddy/framework/cfgparser"
+	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/args"
 )
 
@@ -35,7 +36,7 @@ func TestNodesContainerDefineDirectiveCallback(t *testing.T) {
 	container := &NodesContainer{}
 	
 	var callbackCalled bool
-	callback := func(node parser.Node) error {
+	callback := func(node ast.Node) error {
 		callbackCalled = true
 		return nil
 	}
@@ -56,7 +57,7 @@ func TestNodesContainerDefineDirectiveCallback(t *testing.T) {
 	}
 	
 	// Test callback execution
-	testNode := parser.Node{Name: "callback_directive"}
+	testNode := ast.Node(parser.Node{Name: "callback_directive"})
 	err := directive.Handler()(testNode)
 	if err != nil {
 		t.Errorf("Callback returned error: %v", err)
@@ -86,7 +87,7 @@ func TestNodesContainerDefineBlockCallback(t *testing.T) {
 	container := &NodesContainer{}
 	
 	var callbackCalled bool
-	callback := func(node parser.Node) error {
+	callback := func(node ast.Node) error {
 		callbackCalled = true
 		return nil
 	}
@@ -107,7 +108,7 @@ func TestNodesContainerDefineBlockCallback(t *testing.T) {
 	}
 	
 	// Test callback execution
-	testNode := parser.Node{Name: "callback_block"}
+	testNode := ast.Node(parser.Node{Name: "callback_block"})
 	err := blockDef.Handler()(testNode)
 	if err != nil {
 		t.Errorf("Callback returned error: %v", err)
@@ -315,7 +316,7 @@ func TestNodesContainerRepeatableDirectives(t *testing.T) {
 	
 	// Create a repeatable directive with explicit repeatable attribute
 	var callCount int
-	directive := container.DefineDirectiveCallback("repeatable", func(node parser.Node) error {
+	directive := container.DefineDirectiveCallback("repeatable", func(node ast.Node) error {
 		callCount++
 		if len(node.Args) > 0 {
 			cfg.Values = append(cfg.Values, node.Args[0])

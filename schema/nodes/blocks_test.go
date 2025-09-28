@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	parser "github.com/foxcpp/maddy/framework/cfgparser"
+	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/args"
 )
 
@@ -57,7 +58,7 @@ func TestBlockDefSetHandler(t *testing.T) {
 	}
 	
 	var handlerCalled bool
-	handler := func(node parser.Node) error {
+	handler := func(node ast.Node) error {
 		handlerCalled = true
 		return nil
 	}
@@ -69,7 +70,7 @@ func TestBlockDefSetHandler(t *testing.T) {
 	}
 	
 	// Test handler execution
-	testNode := parser.Node{Name: "test_block"}
+	testNode := ast.Node(parser.Node{Name: "test_block"})
 	err := block.Handler()(testNode)
 	if err != nil {
 		t.Errorf("Handler returned error: %v", err)

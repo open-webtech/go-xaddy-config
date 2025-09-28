@@ -25,7 +25,7 @@ func ReadFile(filename string) (ast.AST, error) {
 }
 
 // ExpectMaxArgN checks if a configuration node has at most the specified number of arguments
-func ExpectMaxArgN(node parser.Node, num int) error {
+func ExpectMaxArgN(node ast.Node, num int) error {
 	if len(node.Args) > num {
 		return nodes.NodeErr(node, "expected at most %d arguments to %s, got %d", num, node.Name, len(node.Args))
 	}
@@ -33,7 +33,7 @@ func ExpectMaxArgN(node parser.Node, num int) error {
 }
 
 // ExpectMinArgN checks if a configuration node has at least the specified number of arguments
-func ExpectMinArgN(node parser.Node, num int) error {
+func ExpectMinArgN(node ast.Node, num int) error {
 	if len(node.Args) < num {
 		return nodes.NodeErr(node, "expected at least %d arguments to %s, got %d", num, node.Name, len(node.Args))
 	}
