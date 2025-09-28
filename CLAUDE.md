@@ -17,7 +17,7 @@ This is **go-xaddy-config**, a Go library that implements a configuration parser
 The library is structured around these core components:
 
 ### Configuration Parsing (`config.go`)
-- **`config.Read()`** and **`config.ReadFile()`**: Parse configuration files into AST (Abstract Syntax Tree)
+- **`config.Read()`** and **`config.ReadFile()`**: Parse configuration files into an Abstract Syntax Tree (`ast.AST` = `[]ast.Node`)
 - **`config.ExpectMinArgN()`** and **`config.ExpectMaxArgN()`**: Utility functions for argument validation
 
 ### Schema System (`schema/`)
@@ -165,7 +165,8 @@ The code generator requires:
 ## File Organization
 
 - `config.go` - Main parsing interface and utilities
-- `schema/builder.go` - Schema definition entry point  
+- `ast/types.go` - AST type definitions and convenience wrappers
+- `schema/builder.go` - Schema definition entry point
 - `schema/nodes/` - Node definition system (directives, blocks, containers)
 - `schema/values/` - Value parsing and accumulation (includes generated code)
 - `schema/args/` - Argument definitions (includes generated code)

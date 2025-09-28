@@ -5,27 +5,23 @@ import (
 	"os"
 
 	parser "github.com/foxcpp/maddy/framework/cfgparser"
+	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/nodes"
 )
 
-// AST represents the Abstract Syntax Tree of a configuration file
-type AST []parser.Node
-
-// Node wraps the cfgparser.Node type for convenience
-type Node parser.Node
-
 // Read parses configuration from an io.Reader and returns the AST
-func Read(r io.Reader, location string) (AST, error) {
-	return parser.Read(r, location)
+func Read(r io.Reader, location string) (ast.AST, error) {
+	nl, err := parser.Read(r, location)
+	return ast.AST(nl), err
 }
 
 // ReadFile reads and parses configuration from a file and returns the AST
-func ReadFile(filename string) (AST, error) {
+func ReadFile(filename string) (ast.AST, error) {
 	f, err := os.Open(filename)
 	if err != nil {
 		return nil, err
 	}
-	return parser.Read(f, filename)
+	return Read(f, filename)
 }
 
 // ExpectMaxArgN checks if a configuration node has at most the specified number of arguments
