@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	parser "github.com/foxcpp/maddy/framework/cfgparser"
 	"github.com/open-webtech/go-xaddy-config/ast"
 )
 
@@ -90,6 +89,12 @@ func TestReadFile(t *testing.T) {
 			wantLen:  4, // 4 top-level nodes: 2 server blocks, 1 tls_files, 1 log_file - macros are internal
 		},
 		{
+			name:     "config with imports",
+			filename: "testdata/with_imports.conf",
+			wantErr:  false,
+			wantLen:  3, // base_setting, base_timeout (imported), server main
+		},
+		{
 			name:     "non-existent file",
 			filename: "testdata/nonexistent.conf",
 			wantErr:  true,
@@ -122,46 +127,46 @@ func TestExpectMaxArgN(t *testing.T) {
 	}{
 		{
 			name: "within limit",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "directive",
 				Args: []string{"arg1", "arg2"},
-			}),
+			},
 			maxArgs: 3,
 			wantErr: false,
 		},
 		{
 			name: "at limit",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "directive",
 				Args: []string{"arg1", "arg2", "arg3"},
-			}),
+			},
 			maxArgs: 3,
 			wantErr: false,
 		},
 		{
 			name: "exceeds limit",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "directive",
 				Args: []string{"arg1", "arg2", "arg3", "arg4"},
-			}),
+			},
 			maxArgs: 3,
 			wantErr: true,
 		},
 		{
 			name: "no args allowed",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "directive",
 				Args: []string{"arg1"},
-			}),
+			},
 			maxArgs: 0,
 			wantErr: true,
 		},
 		{
 			name: "no args provided",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "directive",
 				Args: []string{},
-			}),
+			},
 			maxArgs: 0,
 			wantErr: false,
 		},
@@ -197,46 +202,46 @@ func TestExpectMinArgN(t *testing.T) {
 	}{
 		{
 			name: "above minimum",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "directive",
 				Args: []string{"arg1", "arg2", "arg3"},
-			}),
+			},
 			minArgs: 2,
 			wantErr: false,
 		},
 		{
 			name: "at minimum",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "directive",
 				Args: []string{"arg1", "arg2"},
-			}),
+			},
 			minArgs: 2,
 			wantErr: false,
 		},
 		{
 			name: "below minimum",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "directive",
 				Args: []string{"arg1"},
-			}),
+			},
 			minArgs: 2,
 			wantErr: true,
 		},
 		{
 			name: "no args when required",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "directive",
 				Args: []string{},
-			}),
+			},
 			minArgs: 1,
 			wantErr: true,
 		},
 		{
 			name: "no args when none required",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "directive",
 				Args: []string{},
-			}),
+			},
 			minArgs: 0,
 			wantErr: false,
 		},
@@ -275,43 +280,43 @@ func TestReadFileWithEnvVars(t *testing.T) {
 		os.Unsetenv("LOG_DIR")
 	}()
 
-	ast, err := ReadFile("testdata/with_env_vars.conf")
+	tree, err := ReadFile("testdata/with_env_vars.conf")
 	if err != nil {
 		t.Fatalf("ReadFile() error = %v", err)
 	}
 
-	if len(ast) == 0 {
+	if len(tree) == 0 {
 		t.Fatal("ReadFile() returned empty AST")
 	}
 
 	// The AST should contain the parsed nodes
 	// Note: Environment variable expansion happens at the parser level,
 	// so we're mainly testing that the file can be parsed successfully
-	t.Logf("Successfully parsed config with %d top-level nodes", len(ast))
+	t.Logf("Successfully parsed config with %d top-level nodes", len(tree))
 }
 
 // Test with macros (if supported by underlying parser)
 func TestReadFileWithMacros(t *testing.T) {
-	ast, err := ReadFile("testdata/with_macros.conf")
+	tree, err := ReadFile("testdata/with_macros.conf")
 	if err != nil {
 		t.Fatalf("ReadFile() error = %v", err)
 	}
 
-	if len(ast) == 0 {
+	if len(tree) == 0 {
 		t.Fatal("ReadFile() returned empty AST")
 	}
 
 	// Check that we have the expected number of top-level nodes
 	expectedNodes := 4 // 2 server blocks, 1 tls_files, 1 log_file
-	if len(ast) != expectedNodes {
-		t.Errorf("Expected %d top-level nodes, got %d", expectedNodes, len(ast))
+	if len(tree) != expectedNodes {
+		t.Errorf("Expected %d top-level nodes, got %d", expectedNodes, len(tree))
 	}
 
 	// Find the first server block and verify macro expansion occurred
-	var serverNode *parser.Node
-	for i := range ast {
-		if ast[i].Name == "server" {
-			serverNode = &ast[i]
+	var serverNode *ast.Node
+	for i := range tree {
+		if tree[i].Name == "server" {
+			serverNode = &tree[i]
 			break
 		}
 	}
@@ -328,21 +333,21 @@ func TestReadFileWithMacros(t *testing.T) {
 	// The AST should contain the parsed nodes with macro expansion
 	// Note: Macro expansion happens at the parser level,
 	// so we're mainly testing that the file can be parsed successfully
-	t.Logf("Successfully parsed config with macros - %d top-level nodes", len(ast))
+	t.Logf("Successfully parsed config with macros - %d top-level nodes", len(tree))
 }
 
 // Test AST type conversion
 func TestASTConversion(t *testing.T) {
 	content := "directive value\nblock { nested value }"
 	reader := strings.NewReader(content)
-	
-	ast, err := Read(reader, "test.conf")
+
+	tree, err := Read(reader, "test.conf")
 	if err != nil {
 		t.Fatalf("Read() error = %v", err)
 	}
 
-	// Test that AST can be used as []parser.Node
-	nodes := []parser.Node(ast)
+	// Test that AST can be used as []ast.Node
+	nodes := []ast.Node(tree)
 	if len(nodes) != 2 {
 		t.Errorf("Expected 2 nodes, got %d", len(nodes))
 	}

@@ -1,7 +1,6 @@
 package nodes
 
 import (
-	parser "github.com/foxcpp/maddy/framework/cfgparser"
 	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/args"
 )
@@ -48,9 +47,9 @@ func (d *DirectiveDef) SetHandler(cb NodeHandler) *DirectiveDef {
 
 // Evaluate processes a directive node, ensuring it has no child nodes.
 // Returns an error if the node is a block or if evaluation fails.
-func (d *DirectiveDef) Evaluate(node parser.Node, cfg any) error {
+func (d *DirectiveDef) Evaluate(node ast.Node, cfg any) error {
 	if len(node.Children) != 0 {
-		return NodeErr(ast.Node(node), "node '%s' may not be a block", node.Name)
+		return NodeErr(node, "node '%s' may not be a block", node.Name)
 	}
 
 	return evaluate(d, node)

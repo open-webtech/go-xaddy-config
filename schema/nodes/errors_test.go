@@ -4,25 +4,24 @@ import (
 	"strings"
 	"testing"
 
-	parser "github.com/foxcpp/maddy/framework/cfgparser"
 	"github.com/open-webtech/go-xaddy-config/ast"
 )
 
 func TestNodeErr(t *testing.T) {
-	node := ast.Node(parser.Node{
+	node := ast.Node{
 		Name: "test_directive",
 		Args: []string{"arg1", "arg2"},
 		File: "test.conf",
 		Line: 42,
-	})
+	}
 
 	tests := []struct {
-		name        string
-		format      string
-		args        []interface{}
-		expectFile  bool
-		expectLine  bool
-		expectMsg   bool
+		name       string
+		format     string
+		args       []interface{}
+		expectFile bool
+		expectLine bool
+		expectMsg  bool
 	}{
 		{
 			name:       "simple error message",
@@ -53,13 +52,13 @@ func TestNodeErr(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := NodeErr(node, tt.format, tt.args...)
-			
+
 			if err == nil {
 				t.Fatal("NodeErr() returned nil")
 			}
 
 			errStr := err.Error()
-			
+
 			// Check that error contains file information
 			if tt.expectFile && !strings.Contains(errStr, node.File) {
 				t.Errorf("Error should contain file name '%s', got: %s", node.File, errStr)
@@ -92,9 +91,9 @@ func TestNodeErr(t *testing.T) {
 
 func TestNodeErrWithEmptyNode(t *testing.T) {
 	// Test with node that has minimal information
-	node := ast.Node(parser.Node{
+	node := ast.Node{
 		Name: "minimal_node",
-	})
+	}
 
 	err := NodeErr(node, "test error message")
 	if err == nil {
@@ -113,11 +112,11 @@ func TestNodeErrWithEmptyNode(t *testing.T) {
 }
 
 func TestNodeErrWithVariousArguments(t *testing.T) {
-	node := ast.Node(parser.Node{
+	node := ast.Node{
 		Name: "test_node",
 		File: "config.conf",
 		Line: 10,
-	})
+	}
 
 	// Test with string argument
 	err1 := NodeErr(node, "invalid value '%s'", "bad_value")
@@ -140,11 +139,11 @@ func TestNodeErrWithVariousArguments(t *testing.T) {
 }
 
 func TestNodeErrFormatting(t *testing.T) {
-	node := ast.Node(parser.Node{
+	node := ast.Node{
 		Name: "format_test",
 		File: "test.conf",
 		Line: 123,
-	})
+	}
 
 	err := NodeErr(node, "test %s with %d values", "formatting", 42)
 	errStr := err.Error()
@@ -172,48 +171,48 @@ func TestNodeErrWithDifferentNodeTypes(t *testing.T) {
 	}{
 		{
 			name: "node with all fields",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "full_node",
 				Args: []string{"arg1", "arg2"},
 				File: "full.conf",
 				Line: 100,
-				Children: []parser.Node{
+				Children: []ast.Node{
 					{Name: "child", Args: []string{"child_arg"}},
 				},
-			}),
+			},
 		},
 		{
 			name: "node with just name",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "simple_node",
-			}),
+			},
 		},
 		{
 			name: "node with name and args",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "node_with_args",
 				Args: []string{"value1", "value2", "value3"},
-			}),
+			},
 		},
 		{
 			name: "node with file but no line",
-			node: ast.Node(parser.Node{
+			node: ast.Node{
 				Name: "file_only",
 				File: "file_only.conf",
-			}),
+			},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			err := NodeErr(tt.node, "test error for %s", tt.node.Name)
-			
+
 			if err == nil {
 				t.Fatal("NodeErr() returned nil")
 			}
 
 			errStr := err.Error()
-			
+
 			// Should always contain the node name
 			if !strings.Contains(errStr, tt.node.Name) {
 				t.Errorf("Error should contain node name '%s', got: %s", tt.node.Name, errStr)

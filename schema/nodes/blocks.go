@@ -1,7 +1,6 @@
 package nodes
 
 import (
-	parser "github.com/foxcpp/maddy/framework/cfgparser"
 	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/args"
 )
@@ -41,7 +40,7 @@ func (d *BlockDef) SetHandler(cb NodeHandler) *BlockDef {
 }
 
 // Evaluate processes a block node and its children, updating the configuration.
-func (d *BlockDef) Evaluate(node parser.Node, cfg any) error {
+func (d *BlockDef) Evaluate(node ast.Node, cfg any) error {
 	if err := evaluate(d, node); err != nil {
 		return err
 	}
@@ -74,14 +73,14 @@ func (d *ModuleBlockDef) WithArgs(args ...*args.ArgDef) *ModuleBlockDef {
 }
 
 // Evaluate processes a module block node and its children, updating the configuration.
-func (d *ModuleBlockDef) Evaluate(node parser.Node, cfg any) error {
+func (d *ModuleBlockDef) Evaluate(node ast.Node, cfg any) error {
 	if err := evaluate(d, node); err != nil {
 		return err
 	}
 
 	m, ok := d.modules[*d.moduleName]
 	if !ok {
-		return NodeErr(ast.Node(node), "unknown module '%s'", *d.moduleName)
+		return NodeErr(node, "unknown module '%s'", *d.moduleName)
 	}
 
 	return m.EvaluateTree(node.Children, cfg)
