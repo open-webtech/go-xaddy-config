@@ -238,7 +238,7 @@ go run cmd/gen_values/main.go -pkg args    # for args_generated.go
 
 The generator requires:
 
-- Go 1.16 or later
+- Go 1.25 or later
 - The `goimports` tool from [golang.org/x/tools](https://pkg.go.dev/golang.org/x/tools/cmd/goimports) to add the necessary imports to the generated files
 
 Do not modify the generated files directly as changes will be lost when regenerating.
