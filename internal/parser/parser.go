@@ -79,9 +79,11 @@ func readNode(d *caddyfile.Dispenser) (node ast.Node, closed bool, err error) {
 }
 
 // readBlock reads the children of a block whose opening '{' was just
-// consumed, up to and including the matching '}'.
+// consumed, up to and including the matching '}'. The returned slice is
+// non-nil even for an empty block, so that a block stays distinguishable
+// from a plain directive.
 func readBlock(d *caddyfile.Dispenser) ([]ast.Node, error) {
-	var children []ast.Node
+	children := []ast.Node{}
 	for {
 		if !d.Next() {
 			return nil, d.EOFErr()

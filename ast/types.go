@@ -12,7 +12,8 @@ type Node struct {
 	Name string
 	// Args are the remaining tokens on the node's line, before any block.
 	Args []string
-	// Children holds the nested nodes if the node is a block, nil otherwise.
+	// Children holds the nested nodes if the node is a block. It is non-nil
+	// for a block, even an empty one, and nil for a plain directive.
 	Children []Node
 	// File is the name of the source file the node was read from.
 	File string

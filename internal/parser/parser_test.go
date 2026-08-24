@@ -75,6 +75,16 @@ func TestReadSyntax(t *testing.T) {
 		}
 	})
 
+	t.Run("empty block keeps non-nil children", func(t *testing.T) {
+		nodes := read(t, "block { }\ndirective")
+		if nodes[0].Children == nil || len(nodes[0].Children) != 0 {
+			t.Errorf("empty block should have non-nil empty Children, got %#v", nodes[0].Children)
+		}
+		if nodes[1].Children != nil {
+			t.Errorf("plain directive should have nil Children, got %#v", nodes[1].Children)
+		}
+	})
+
 	t.Run("unclosed block", func(t *testing.T) {
 		if _, err := Read(strings.NewReader("block {\n\tchild"), "test.conf"); err == nil {
 			t.Error("expected error for unclosed block")
@@ -141,6 +151,35 @@ func TestSnippetsAndImports(t *testing.T) {
 		}
 	})
 
+	t.Run("relative path resolves against importing file", func(t *testing.T) {
+		dir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(dir, "base.conf"), []byte("base_setting value1\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+		// resolved against dir, not the process working directory; the
+		// second import exercises the ".conf" suffix fallback
+		content := "import base.conf\nimport base\n"
+		nodes, err := Read(strings.NewReader(content), filepath.Join(dir, "main.conf"))
+		if err != nil {
+			t.Fatalf("Read() error = %v", err)
+		}
+		if len(nodes) != 2 || nodes[0].Name != "base_setting" || nodes[1].Name != "base_setting" {
+			t.Errorf("unexpected nodes: %+v", nodes)
+		}
+	})
+
+	t.Run("snippet without block is rejected", func(t *testing.T) {
+		if _, err := Read(strings.NewReader("(broken)\nimport broken"), "test.conf"); err == nil {
+			t.Error("expected error for snippet declaration without a block")
+		}
+	})
+
+	t.Run("import with block is rejected", func(t *testing.T) {
+		if _, err := Read(strings.NewReader("(c) {\n\topt\n}\nimport c { }"), "test.conf"); err == nil {
+			t.Error("expected error for import with a block")
+		}
+	})
+
 	t.Run("import cycle", func(t *testing.T) {
 		dir := t.TempDir()
 		a := filepath.Join(dir, "a.conf")
@@ -190,6 +229,13 @@ func TestMacros(t *testing.T) {
 		nodes := read(t, "directive $(missing)")
 		if nodes[0].Args[0] != "$(missing)" {
 			t.Errorf("undefined macro should stay as-is: %v", nodes[0].Args)
+		}
+	})
+
+	t.Run("forward reference left unchanged", func(t *testing.T) {
+		nodes := read(t, "directive $(later)\n$(later) = value")
+		if nodes[0].Args[0] != "$(later)" {
+			t.Errorf("forward macro reference should stay as-is: %v", nodes[0].Args)
 		}
 	})
 }

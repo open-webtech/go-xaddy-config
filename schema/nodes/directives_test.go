@@ -1,6 +1,7 @@
 package nodes
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/open-webtech/go-xaddy-config/ast"
@@ -261,14 +262,5 @@ func TestDirectiveDefWithVariadicArgs(t *testing.T) {
 
 // Helper function to check if a string contains a substring
 func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(s) > len(substr) &&
-		(s[:len(substr)] == substr || s[len(s)-len(substr):] == substr ||
-			func() bool {
-				for i := 1; i <= len(s)-len(substr); i++ {
-					if s[i:i+len(substr)] == substr {
-						return true
-					}
-				}
-				return false
-			}()))
+	return strings.Contains(s, substr)
 }

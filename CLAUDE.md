@@ -94,7 +94,7 @@ import /path/to/config.conf
 
 **Import behavior**:
 - Imported content is directly expanded into the configuration
-- File paths can be relative or absolute
+- Relative file paths are resolved against the directory of the importing file; a bare name may leave off the `.conf` suffix
 - If both a snippet and file have the same name, the snippet takes precedence
 - Enables configuration modularization and reuse across multiple files
 

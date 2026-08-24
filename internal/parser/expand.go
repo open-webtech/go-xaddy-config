@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -39,6 +40,9 @@ func (e *expander) expandTop(nodes []ast.Node, depth int) ([]ast.Node, error) {
 		}
 		if len(n.Args) != 0 {
 			return nil, nodeErrf(n, "snippet '%s' cannot have arguments", n.Name)
+		}
+		if n.Children == nil {
+			return nil, nodeErrf(n, "snippet '%s' must be a block", n.Name)
 		}
 		e.snippets[m[1]] = n.Children
 	}
@@ -81,12 +85,22 @@ func (e *expander) resolveImport(n ast.Node, depth int) ([]ast.Node, error) {
 	if body, ok := e.snippets[target]; ok {
 		return e.expandImports(copyNodes(body), depth+1)
 	}
-	f, err := os.Open(target)
+	// Relative paths are resolved against the directory of the importing
+	// file, and a bare name may leave off the ".conf" suffix.
+	file := target
+	if !filepath.IsAbs(file) && n.File != "" {
+		file = filepath.Join(filepath.Dir(n.File), file)
+	}
+	f, err := os.Open(file)
+	if err != nil && os.IsNotExist(err) {
+		file += ".conf"
+		f, err = os.Open(file)
+	}
 	if err != nil {
 		return nil, nodeErrf(n, "import '%s' does not name a snippet or a readable file: %v", target, err)
 	}
 	defer f.Close()
-	tree, err := parseTree(f, target)
+	tree, err := parseTree(f, file)
 	if err != nil {
 		return nil, err
 	}
@@ -105,30 +119,28 @@ func copyNodes(nodes []ast.Node) []ast.Node {
 	return out
 }
 
-// expandMacros collects top-level macro definitions of the form
-// "$(name) = value..." and substitutes references to them throughout the
-// tree. A definition may reference macros defined before it. A reference
-// that stands alone as an argument splices in all of the macro's values;
-// a reference inside a longer string is replaced textually. References to
-// undefined macros are left unchanged.
+// expandMacros processes top-level macro definitions of the form
+// "$(name) = value..." in file order and substitutes references to them
+// throughout the tree. A reference is expanded using the macros defined
+// above it in the file; forward references and references to undefined
+// macros are left unchanged. A reference that stands alone as an argument
+// splices in all of the macro's values; a reference inside a longer string
+// is replaced textually.
 func expandMacros(nodes []ast.Node) ([]ast.Node, error) {
 	macros := map[string][]string{}
 	rest := make([]ast.Node, 0, len(nodes))
-	for _, n := range nodes {
-		m := macroDefRe.FindStringSubmatch(n.Name)
-		if m == nil || len(n.Args) == 0 || n.Args[0] != "=" {
-			rest = append(rest, n)
+	for i := range nodes {
+		n := nodes[i]
+		if m := macroDefRe.FindStringSubmatch(n.Name); m != nil && len(n.Args) > 0 && n.Args[0] == "=" {
+			if n.Children != nil {
+				return nil, nodeErrf(n, "macro definition '%s' cannot be a block", n.Name)
+			}
+			macros[m[1]] = expandMacroStrings(n.Args[1:], macros)
 			continue
 		}
-		if n.Children != nil {
-			return nil, nodeErrf(n, "macro definition '%s' cannot be a block", n.Name)
-		}
-		macros[m[1]] = expandMacroStrings(n.Args[1:], macros)
+		expandMacroNodes(nodes[i:i+1], macros)
+		rest = append(rest, nodes[i])
 	}
-	if len(macros) == 0 {
-		return rest, nil
-	}
-	expandMacroNodes(rest, macros)
 	return rest, nil
 }
 
