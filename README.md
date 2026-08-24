@@ -1,6 +1,8 @@
 # go-xaddy-config
 
-A configuration parser and evaluator for [Caddyfile](https://caddyserver.com/docs/caddyfile)-style configuration formats, specifically implementing the subset used in [Maddy](https://github.com/foxcpp/maddy) (Caddy for Mail). This provides a familiar and proven configuration syntax for Go applications.
+A configuration parser and evaluator for [Caddyfile](https://caddyserver.com/docs/caddyfile)-style configuration formats, implementing the dialect used by [Maddy](https://github.com/foxcpp/maddy) (Caddy for Mail): directives, blocks, snippets, imports, macros and environment variable substitution. This provides a familiar and proven configuration syntax for Go applications.
+
+The parser is built on the Apache-2.0 licensed [caddyfile](https://pkg.go.dev/github.com/coredns/caddy/caddyfile) lexer maintained by [CoreDNS](https://github.com/coredns/caddy); the dialect features are implemented in this library. There is no dependency on Maddy itself.
 
 ## Features
 
@@ -240,6 +242,10 @@ The generator requires:
 - The `goimports` tool from [golang.org/x/tools](https://pkg.go.dev/golang.org/x/tools/cmd/goimports) to add the necessary imports to the generated files
 
 Do not modify the generated files directly as changes will be lost when regenerating.
+
+## Parser Backend
+
+Up to and including the untagged pre-release versions, this library delegated parsing to Maddy's `cfgparser`, which is GPL-3.0 licensed. Since v0.1.0 the parser is an original implementation on top of the Apache-2.0 licensed [`github.com/coredns/caddy/caddyfile`](https://pkg.go.dev/github.com/coredns/caddy/caddyfile) lexer, removing the GPL dependency from the module graph and making the MIT license declaration consistent with what consumers link against. The configuration dialect is unchanged: snippets, imports, macros and `{env:...}` substitution all continue to work. The only API-visible difference is that `ast.Node` is now this library's own struct rather than an alias of Maddy's parser type.
 
 ## Contributing
 

@@ -3,7 +3,6 @@ package schema
 import (
 	"testing"
 
-	parser "github.com/foxcpp/maddy/framework/cfgparser"
 	"github.com/open-webtech/go-xaddy-config/ast"
 	"github.com/open-webtech/go-xaddy-config/schema/args"
 )
@@ -17,14 +16,14 @@ func TestNewBuilder(t *testing.T) {
 
 func TestBuilderDefineDirective(t *testing.T) {
 	builder := NewBuilder()
-	
+
 	var testValue string
 	directive := builder.DefineDirective("test_directive", args.StringArg(&testValue))
-	
+
 	if directive == nil {
 		t.Fatal("DefineDirective() returned nil")
 	}
-	
+
 	if directive.Name() != "test_directive" {
 		t.Errorf("Expected directive name 'test_directive', got '%s'", directive.Name())
 	}
@@ -32,7 +31,7 @@ func TestBuilderDefineDirective(t *testing.T) {
 
 func TestBuilderDefineDirectiveCallback(t *testing.T) {
 	builder := NewBuilder()
-	
+
 	var callbackCalled bool
 	var receivedNode ast.Node
 
@@ -41,33 +40,33 @@ func TestBuilderDefineDirectiveCallback(t *testing.T) {
 		receivedNode = node
 		return nil
 	}
-	
+
 	directive := builder.DefineDirectiveCallback("callback_directive", callback)
-	
+
 	if directive == nil {
 		t.Fatal("DefineDirectiveCallback() returned nil")
 	}
-	
+
 	if directive.Name() != "callback_directive" {
 		t.Errorf("Expected directive name 'callback_directive', got '%s'", directive.Name())
 	}
-	
+
 	// Test that handler was set
 	if directive.Handler() == nil {
 		t.Error("Expected handler to be set")
 	}
-	
+
 	// Test callback execution
-	testNode := ast.Node(parser.Node{Name: "callback_directive", Args: []string{"test"}})
+	testNode := ast.Node{Name: "callback_directive", Args: []string{"test"}}
 	err := directive.Handler()(testNode)
 	if err != nil {
 		t.Errorf("Callback returned error: %v", err)
 	}
-	
+
 	if !callbackCalled {
 		t.Error("Callback was not called")
 	}
-	
+
 	if receivedNode.Name != "callback_directive" {
 		t.Errorf("Expected callback to receive node with name 'callback_directive', got '%s'", receivedNode.Name)
 	}
@@ -75,14 +74,14 @@ func TestBuilderDefineDirectiveCallback(t *testing.T) {
 
 func TestBuilderDefineBlock(t *testing.T) {
 	builder := NewBuilder()
-	
+
 	var testValue string
 	block := builder.DefineBlock("test_block", args.StringArg(&testValue))
-	
+
 	if block == nil {
 		t.Fatal("DefineBlock() returned nil")
 	}
-	
+
 	if block.Name() != "test_block" {
 		t.Errorf("Expected block name 'test_block', got '%s'", block.Name())
 	}
@@ -90,35 +89,35 @@ func TestBuilderDefineBlock(t *testing.T) {
 
 func TestBuilderDefineBlockCallback(t *testing.T) {
 	builder := NewBuilder()
-	
+
 	var callbackCalled bool
 	callback := func(node ast.Node) error {
 		callbackCalled = true
 		return nil
 	}
-	
+
 	blockDef := builder.DefineBlockCallback("callback_block", callback)
-	
+
 	if blockDef == nil {
 		t.Fatal("DefineBlockCallback() returned nil")
 	}
-	
+
 	if blockDef.Name() != "callback_block" {
 		t.Errorf("Expected block name 'callback_block', got '%s'", blockDef.Name())
 	}
-	
+
 	// Test that handler was set
 	if blockDef.Handler() == nil {
 		t.Error("Expected handler to be set")
 	}
-	
+
 	// Test callback execution
-	testNode := ast.Node(parser.Node{Name: "callback_block"})
+	testNode := ast.Node{Name: "callback_block"}
 	err := blockDef.Handler()(testNode)
 	if err != nil {
 		t.Errorf("Callback returned error: %v", err)
 	}
-	
+
 	if !callbackCalled {
 		t.Error("Callback was not called")
 	}
@@ -134,18 +133,18 @@ func TestBuilderIntegration(t *testing.T) {
 		Listen         string
 		TLS            bool
 	}
-	
+
 	cfg := &Config{}
-	
+
 	// Build schema
 	builder := NewBuilder()
 	builder.DefineDirective("log_level", args.StringArg(&cfg.LogLevel))
 	builder.DefineDirective("max_connections", args.IntArg(&cfg.MaxConnections))
-	
+
 	serverBlock := builder.DefineBlock("server", args.StringArg(&cfg.ServerName))
 	serverBlock.DefineDirective("listen", args.StringArg(&cfg.Listen))
 	serverBlock.DefineDirective("tls", args.BoolArg(&cfg.TLS))
-	
+
 	// Test configuration content
 	configContent := `log_level debug
 max_connections 100
@@ -154,19 +153,19 @@ server web {
     listen 80
     tls false
 }`
-	
+
 	// Parse configuration
 	nodes, err := parseConfigString(configContent)
 	if err != nil {
 		t.Fatalf("Failed to parse config: %v", err)
 	}
-	
+
 	// Evaluate configuration
 	err = builder.EvaluateTree(nodes, cfg)
 	if err != nil {
 		t.Fatalf("Failed to evaluate config: %v", err)
 	}
-	
+
 	// Verify results
 	if cfg.LogLevel != "debug" {
 		t.Errorf("Expected LogLevel 'debug', got '%s'", cfg.LogLevel)
@@ -186,16 +185,16 @@ server web {
 }
 
 // Helper function to parse config string
-func parseConfigString(content string) ([]parser.Node, error) {
+func parseConfigString(content string) ([]ast.Node, error) {
 	// This would typically use the actual parser
 	// For now, we'll create mock nodes for testing
-	return []parser.Node{
+	return []ast.Node{
 		{Name: "log_level", Args: []string{"debug"}},
 		{Name: "max_connections", Args: []string{"100"}},
 		{
 			Name: "server",
 			Args: []string{"web"},
-			Children: []parser.Node{
+			Children: []ast.Node{
 				{Name: "listen", Args: []string{"80"}},
 				{Name: "tls", Args: []string{"false"}},
 			},

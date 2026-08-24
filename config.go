@@ -4,8 +4,8 @@ import (
 	"io"
 	"os"
 
-	parser "github.com/foxcpp/maddy/framework/cfgparser"
 	"github.com/open-webtech/go-xaddy-config/ast"
+	"github.com/open-webtech/go-xaddy-config/internal/parser"
 	"github.com/open-webtech/go-xaddy-config/schema/nodes"
 )
 
@@ -21,6 +21,7 @@ func ReadFile(filename string) (ast.AST, error) {
 	if err != nil {
 		return nil, err
 	}
+	defer f.Close()
 	return Read(f, filename)
 }
 

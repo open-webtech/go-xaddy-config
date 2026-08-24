@@ -4,21 +4,22 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is **go-xaddy-config**, a Go library that implements a configuration parser and evaluator for Caddyfile-style configuration formats, specifically implementing the subset used in [Maddy](https://github.com/foxcpp/maddy) (Caddy for Mail). The library provides a familiar and proven configuration syntax for Go applications using the same format as Caddy and Maddy servers.
+This is **go-xaddy-config**, a Go library that implements a configuration parser and evaluator for Caddyfile-style configuration formats, implementing the dialect used by [Maddy](https://github.com/foxcpp/maddy) (Caddy for Mail). The library provides a familiar and proven configuration syntax for Go applications. Parsing is an original implementation in `internal/parser` on top of the Apache-2.0 licensed `github.com/coredns/caddy/caddyfile` lexer; there is no dependency on Maddy.
 
 ## Key Dependencies
 
-- `github.com/foxcpp/maddy v0.7.1` - Core configuration parser from Maddy project
-- `golang.org/x/text v0.14.0` - Text processing utilities for code generation
+- `github.com/coredns/caddy v1.1.4` - Apache-2.0 licensed caddyfile lexer (CoreDNS's maintained fork of Caddy v1)
+- `golang.org/x/text` - Text processing utilities for code generation
 - Go 1.23.2+ required
 
 ## Architecture Overview
 
 The library is structured around these core components:
 
-### Configuration Parsing (`config.go`)
+### Configuration Parsing (`config.go`, `internal/parser/`)
 - **`config.Read()`** and **`config.ReadFile()`**: Parse configuration files into an Abstract Syntax Tree (`ast.AST` = `[]ast.Node`)
 - **`config.ExpectMinArgN()`** and **`config.ExpectMaxArgN()`**: Utility functions for argument validation
+- **`internal/parser/`**: The parser itself — `parser.go` builds the raw node tree from the caddyfile token stream, `expand.go` applies the dialect expansions (snippets/imports, then macros, then `{env:...}`)
 
 ### Schema System (`schema/`)
 - **`schema.Builder`**: Main interface for defining configuration schemas
