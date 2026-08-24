@@ -10,7 +10,7 @@ This is **go-xaddy-config**, a Go library that implements a configuration parser
 
 - `github.com/coredns/caddy v1.1.4` - Apache-2.0 licensed caddyfile lexer (CoreDNS's maintained fork of Caddy v1)
 - `golang.org/x/text` - Text processing utilities for code generation
-- Go 1.23.2+ required
+- Go 1.25+ required
 
 ## Architecture Overview
 

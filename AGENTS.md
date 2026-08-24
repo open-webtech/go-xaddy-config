@@ -4,7 +4,7 @@
 Core parsing logic lives in `config.go`, with generated schema helpers under `schema/`. Code generation tooling resides in `cmd/gen_values`, reusable configuration fixtures sit in `examples/`, and parsed sample inputs belong in `testdata/`. Keep new assets beside the code they support to simplify `go generate` output diffs and targeted tests.
 
 ## Build, Test & Generation Commands
-- `go build ./...` – verifies the module compiles with Go 1.23.2 across every package.
+- `go build ./...` – verifies the module compiles with Go 1.25 across every package.
 - `go test ./...` – runs table-driven suites in `config_test.go` and generator checks under `cmd/gen_values`.
 - `go test ./... -run Read -v` – focus on parser regressions when iterating quickly.
 - `go generate ./...` – refreshes `schema/args/args_generated.go` and `schema/values/values_generated.go`; requires `goimports` on PATH.
